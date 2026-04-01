@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 from routes.servicios import servicios_db
 
 router = APIRouter(prefix="/mascotas", tags=["mascotas"])
@@ -6,14 +7,16 @@ router = APIRouter(prefix="/mascotas", tags=["mascotas"])
 mascotas_db = []
 
 
+class MascotaPayload(BaseModel):
+    correo_dueno: str
+    nombre_mascota: str
+    tipo_servicio: str
+    fecha: str
+
+
 @router.post("/registrar")
-def registrar_mascota(correo_dueno: str, nombre_mascota: str, tipo_servicio: str, fecha: str):
-    nueva_mascota = {
-        "correo_dueno": correo_dueno,
-        "nombre_mascota": nombre_mascota,
-        "tipo_servicio": tipo_servicio,
-        "fecha": fecha
-    }
+def registrar_mascota(payload: MascotaPayload):
+    nueva_mascota = payload.dict()
     mascotas_db.append(nueva_mascota)
     return {
         "mensaje": "¡Mascota registrada exitosamente!",

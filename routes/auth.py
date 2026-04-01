@@ -1,44 +1,50 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="", tags=["auth"])
 
 usuarios_db = []
 
 
+class AuthPayload(BaseModel):
+    correo: str
+    contrasena: str
+
+
 @router.post("/register")
-def registro(correo: str, contraseña: str):
+def registro(payload: AuthPayload):
     nuevo_usuario = {
-        "correo": correo,
-        "contraseña": contraseña
+        "correo": payload.correo,
+        "contrasena": payload.contrasena
     }
     usuarios_db.append(nuevo_usuario)
     return {
         "mensaje": "¡Registro exitoso!",
         "usuario": {
-            "correo": correo
+            "correo": payload.correo
         }
     }
 
 
 @router.post("/login")
-def login(correo: str, contraseña: str):
+def login(payload: AuthPayload):
     usuario_encontrado = None
     for usuario in usuarios_db:
-        if usuario["correo"] == correo and usuario["contraseña"] == contraseña:
+        if usuario["correo"] == payload.correo and usuario["contrasena"] == payload.contrasena:
             usuario_encontrado = usuario
             break
-    
+
     if usuario_encontrado:
         return {
             "mensaje": "¡Login exitoso!",
             "datos": {
-                "correo": correo
+                "correo": payload.correo
             }
         }
     else:
         return {
             "mensaje": "¡Credenciales inválidas!",
             "datos": {
-                "correo": correo
+                "correo": payload.correo
             }
         }
